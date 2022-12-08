@@ -1,0 +1,63 @@
+#${NEW_NS} variable value added to file via envsubst command
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${NEW_NS} 
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: welcome-api-deployment
+  namespace: ${NEW_NS}
+spec:
+  selector:
+    matchLabels:
+      app: welcome-api 
+  template:
+    metadata:
+      labels:
+        app: welcome-api
+    spec:
+      containers:
+      - name: welcome-api
+        image: poc-welcome-api-image
+        ports:
+          - containerPort: 80
+        imagePullPolicy: Never
+        env:
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: welcome-api-svc
+  namespace: ${NEW_NS}
+spec:
+  selector:
+      app: welcome-api
+  type: ClusterIP
+  ports:
+  - name: welcome-api
+    port: 80
+    targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: eks-poc-api
+  namespace: ${NEW_NS}
+spec:
+  rules:
+  - host: ${NEW_NS}.localhost
+    http:
+      paths:
+      - backend:
+          service:
+            name: welcome-api-svc
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
