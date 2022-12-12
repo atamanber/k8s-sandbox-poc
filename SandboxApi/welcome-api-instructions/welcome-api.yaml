@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: welcome-api
-        image: poc-welcome-api-image
+        image: welcome-api-image
         ports:
           - containerPort: 80
         imagePullPolicy: Never
@@ -47,7 +47,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: eks-poc-api
+  name: sandbox-api
   namespace: ${NEW_NS}
 spec:
   rules:
